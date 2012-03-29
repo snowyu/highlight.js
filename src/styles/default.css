@@ -128,7 +128,7 @@ pre .tex .formula {
   opacity: 0.5;
 }
 
-.code-lines {
+.code-line {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;

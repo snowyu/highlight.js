@@ -26,20 +26,22 @@ var hljs = new function() {
       if (!(node.nodeType == 3 && node.nodeValue.match(/\s+/)))
         break;
     }
+    return null;
   }
 
   function blockText(block, ignoreNewLines) {
     var result = '';
-    for (var i = 0; i < block.childNodes.length; i++)
+    for (var i = 0; i < block.childNodes.length; i++) {
       if (block.childNodes[i].nodeType == 3) {
         var chunk = block.childNodes[i].nodeValue;
         if (ignoreNewLines)
           chunk = chunk.replace(/\n/g, '');
         result += chunk;
-      } else if (block.childNodes[i].nodeName == 'BR')
+      } else if (block.childNodes[i].nodeName == 'BR') {
         result += '\n';
-      else
+      } else
         result += blockText(block.childNodes[i]);
+    }
     // Thank you, MSIE...
     if (/MSIE [678]/.test(navigator.userAgent))
       result = result.replace(/\r/g, '\n');
@@ -47,7 +49,7 @@ var hljs = new function() {
   }
 
   function blockLanguage(block) {
-    var classes = block.className.split(/\s+/)
+    var classes = block.className.split(/\s+/);
     classes = classes.concat(block.parentNode.className.split(/\s+/));
     for (var i = 0; i < classes.length; i++) {
       var class_ = classes[i].replace(/^language-/, '');
@@ -55,6 +57,7 @@ var hljs = new function() {
         return class_;
       }
     }
+    return null;
   }
 
   /* Stream merging */
@@ -66,14 +69,14 @@ var hljs = new function() {
         if (node.childNodes[i].nodeType == 3)
           offset += node.childNodes[i].nodeValue.length;
         else if (node.childNodes[i].nodeName == 'BR')
-          offset += 1
+          offset += 1;
         else if (node.childNodes[i].nodeType == 1) {
           result.push({
             event: 'start',
             offset: offset,
             node: node.childNodes[i]
           });
-          offset = arguments.callee(node.childNodes[i], offset)
+          offset = arguments.callee(node.childNodes[i], offset);
           result.push({
             event: 'stop',
             offset: offset,
@@ -123,7 +126,7 @@ var hljs = new function() {
       for (var i = 0; i < node.attributes.length; i++) {
         var attribute = node.attributes[i];
         result += ' ' + attribute.nodeName.toLowerCase();
-        if (attribute.value != undefined && attribute.value != false && attribute.value != null) {
+        if (attribute.value != undefined && attribute.value !== false && attribute.value !== null) {
           result += '="' + escape(attribute.value) + '"';
         }
       }
@@ -532,12 +535,12 @@ var hljs = new function() {
 
     if(startAt != -1) {
       var m = result.value.match(/([^\n\r]*)(?:\n\r|\r\n|\r|\n|$)/g);
-      var s = '<div class="code-lines">';
+      var s = '<div class="code-line">';
       var spaces = Math.ceil(Math.log(m.length) / Math.log(10));
       var counter = startAt + 1 - 1;
       if(spaces < 6)
         spaces = 6;
-      for(var j=0; j < m.length-1; j++) {
+      for(var j=0; j < m.length; j++) {
           l = '';
           for (i = 0; i < (spaces - (Math.ceil(Math.log(counter + 1) / Math.log(10)))); ++i)
             l = l + " ";
@@ -548,7 +551,8 @@ var hljs = new function() {
       }
       s += '</div>';
 
-      result.value = s + '<div class="code-content">' + result.value + '</div>'; //insertLines(result.value, startAt, alternatingRows);
+      result.value = s + '<div class="code-content">' + result.value + '</div>'; 
+      //result.value = insertLines(result.value, startAt, alternatingRows);
     }
 
     result.value = fixMarkup(result.value, tabReplace, useBR);
@@ -608,7 +612,7 @@ var hljs = new function() {
         newline = newline + "\">";
       }
       if(startAt != -1) {
-        newline = newline + "<span class=\"rownumber\">";
+        newline = newline + "<span class=\"code-line\">";
         for (i = 0; i < (spaces - (Math.ceil(Math.log(counter + 1) / Math.log(10)))); ++i)
           newline = newline + " ";
         newline = newline + counter + " </span>";
