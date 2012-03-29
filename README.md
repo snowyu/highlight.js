@@ -63,6 +63,36 @@ it's not `<pre>`) pass `true` into third parameter of `highlightBlock`:
 ```javascript
 $('div.code').each(function(i, e) {hljs.highlightBlock(e, null, true)});
 ```
+### Line Number
+
+to give highlighter.js row numbers. In order to activate it, you can 
+either:
+add:
+
+```javascript
+hljs.addLineNumbers();
+```
+
+to your document headers or:
+
+```html
+class='startAt1'
+```
+to the code tag (you can start at other numbers as well: startAt# is the syntax).
+
+If you happen to have turned it on via javascript, you can turn it off by:
+
+```javascript
+hljs.noLineNumbers();
+```
+
+in javascript or by adding:
+
+```html
+class='no-linenumbers'
+```
+
+to the code tag.
 
 ### Styling
 

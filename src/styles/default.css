@@ -128,14 +128,24 @@ pre .tex .formula {
   opacity: 0.5;
 }
 
-.rownumber { 
-  border-right: 2px solid #666; 
-  margin-right: 4px;
-  background-color: #EEE;
+.code-lines {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  color: #777; 
+  position: relative; 
+  float: left; 
+  /*width: 58px;*/
+  border-right: 2px solid #666;
+  /*height: 1px; /* (for ie) */
 }
 
-.alternaterow { 
-  width: 100%; 
-  display: block; 
-  background-color: #F9F9F9;
+.code-content { 
+  position: relative; 
+  padding-left: 60px; 
+  padding-bottom: 10px; 
 }

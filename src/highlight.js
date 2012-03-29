@@ -529,10 +529,29 @@ var hljs = new function() {
       pre.innerHTML = result.value;
       result.value = mergeStreams(original, nodeStream(pre), text);
     }
-    result.value = fixMarkup(result.value, tabReplace, useBR);
 
-    if(startAt != -1 || alternatingRows)
-      result.value = insertLines(result.value, startAt, alternatingRows);
+    if(startAt != -1) {
+      var m = result.value.match(/([^\n\r]*)(?:\n\r|\r\n|\r|\n|$)/g);
+      var s = '<div class="code-lines">';
+      var spaces = Math.ceil(Math.log(m.length) / Math.log(10));
+      var counter = startAt + 1 - 1;
+      if(spaces < 6)
+        spaces = 6;
+      for(var j=0; j < m.length-1; j++) {
+          l = '';
+          for (i = 0; i < (spaces - (Math.ceil(Math.log(counter + 1) / Math.log(10)))); ++i)
+            l = l + " ";
+          l = l + counter;
+
+          s += l + '<br/>';
+          counter++;
+      }
+      s += '</div>';
+
+      result.value = s + '<div class="code-content">' + result.value + '</div>'; //insertLines(result.value, startAt, alternatingRows);
+    }
+
+    result.value = fixMarkup(result.value, tabReplace, useBR);
 
     var class_name = block.className;
     if (!class_name.match('(\\s|^)(language-)?' + language + '(\\s|$)')) {
