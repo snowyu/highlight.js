@@ -475,6 +475,34 @@ var hljs = new function() {
     return value;
   }
 
+  function getStartingLineNumber(block) {
+    var classes = block.className.split(/\s+/);
+    for (var i = 0; i < classes.length; i++) {
+      if (classes[i] == 'no-linenumbers') {
+        return -1;
+      }
+      if (classes[i].match("startAt") != null) {
+        //nearest I can tell there are some wierd things happenning with numbers; hence the "/ 1" part
+        return classes[i].match(/\d+/) / 1;
+      }
+    }
+    if(lineNumbers) return 1;
+    return -1;
+  }
+
+  function getAlternatingRowsOn(block) {
+    var classes = block.className.split(/\s+/);
+    for (var i = 0; i < classes.length; i++) {
+      if (classes[i] == 'no-alternating-rows') {
+        return false;
+      }
+      if (classes[i] == 'alternating-rows') {
+        return true;
+      }
+    }
+    return alternatingRows;
+  }
+
   /*
   Applies highlighting to a DOM node containing code. Accepts a DOM node and
   two optional parameters for fixMarkup.
@@ -482,6 +510,8 @@ var hljs = new function() {
   function highlightBlock(block, tabReplace, useBR) {
     var text = blockText(block, useBR);
     var language = blockLanguage(block);
+    var startAt = getStartingLineNumber(block);
+    var alternatingRows = getAlternatingRowsOn(block);
     if (language == 'no-highlight')
         return;
     if (language) {
@@ -497,6 +527,9 @@ var hljs = new function() {
       result.value = mergeStreams(original, nodeStream(pre), text);
     }
     result.value = fixMarkup(result.value, tabReplace, useBR);
+
+    if(startAt != -1 || alternatingRows)
+      result.value = insertLines(result.value, startAt, alternatingRows);
 
     var class_name = block.className;
     if (!class_name.match('(\\s|^)(language-)?' + language + '(\\s|$)')) {
@@ -527,6 +560,61 @@ var hljs = new function() {
         re: result.second_best.relevance
       };
     }
+  }
+
+  function insertLines(highlightedText, startAt, alternatingRows) {
+    var counter = startAt + 1 - 1; //make sure it is a number; otherwise Math.log doesn't work right
+    var result = "";
+    //IE does wierd stuff when splitting blank lines, so insert a space
+    highlightedText = highlightedText.replace(/(\r\n|\r|\n)(\r\n|\r|\n)/g, "$1 $2");
+    var lines = highlightedText.split(/\r\n|\r|\n/);
+    var spaces = Math.ceil(Math.log(lines.length) / Math.log(10));
+    var newline = "";
+    var line;
+    var i;
+    var tokenArray = new Array();
+    if(spaces < 6)
+      spaces = 6;
+    for (line = 0; line < lines.length; ++line) {
+      newline = "";
+      if(alternatingRows) {
+        newline = "<span class=\"";
+        if(line%2 == 0)
+          newline = newline + "row";
+        else
+          newline = newline + "alternaterow";
+        newline = newline + "\">";
+      }
+      if(startAt != -1) {
+        newline = newline + "<span class=\"rownumber\">";
+        for (i = 0; i < (spaces - (Math.ceil(Math.log(counter + 1) / Math.log(10)))); ++i)
+          newline = newline + " ";
+        newline = newline + counter + " </span>";
+      }
+      for(var restartTokenCt = 0; restartTokenCt < tokenArray.length; ++restartTokenCt) {
+        newline = newline + tokenArray[restartTokenCt];
+      }
+      var tokens = lines[line].match(/(<span class="\w+">)|(<\/span>)|(.*?)/g);
+      for (var tokenct = 0;tokenct<tokens.length;++tokenct) {
+        if (tokens[tokenct].match(/(<span class="\w+">)/)) {
+          tokenArray.push(tokens[tokenct]);
+        } else if (tokens[tokenct].match(/(<\/span>)/)) {
+          tokenArray.pop();
+        }
+      }
+      newline = newline + lines[line];
+      for(var restartTokenCt = 0; restartTokenCt < tokenArray.length; ++restartTokenCt) {
+        newline = newline + "</span>";
+      }
+
+      newline = newline + "\n";
+      if(alternatingRows) {
+        newline = newline + "</span>";
+      }
+      counter++;
+      result = result + newline;
+    }
+    return result;
   }
 
   /*
@@ -568,6 +656,15 @@ var hljs = new function() {
   this.highlightBlock = highlightBlock;
   this.initHighlighting = initHighlighting;
   this.initHighlightingOnLoad = initHighlightingOnLoad;
+
+  var lineNumbers = false
+  this.noLineNumbers = function() { lineNumbers = false; }
+  this.addLineNumbers = function() { lineNumbers = true; }
+  
+  var alternatingRows = false;
+  this.noAlternatingRows = function() { alternatingRows=false; }
+  this.addAlternatingRows = function() { alternatingRows=true; }
+
 
   // Common regexps
   this.IDENT_RE = '[a-zA-Z][a-zA-Z0-9_]*';
