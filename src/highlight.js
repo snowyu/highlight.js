@@ -537,7 +537,7 @@ var hljs = new function() {
       result.value = mergeStreams(original, nodeStream(pre), text);
     }
 
-    if(startAt != -1 || alternaterows) {
+    if(startAt != -1 || alternatingRows) {
           var resultTable = '<table class="lines" cellpadding="0" cellspacing="0"><tbody><tr>';
           var lines = '<td><pre class="line-numbers">' + escape(text).replace(/^(.*)$/gm, '<span class="line"></span>') + '</pre><td>';
           var codes = '<td width="100%"><div class="highlight"><pre>'+result.value+'</pre></div></td>';
