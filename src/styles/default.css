@@ -128,7 +128,18 @@ pre .tex .formula {
   opacity: 0.5;
 }
 
-.code-line {
+pre {
+  counter-reset: lines;
+}
+pre .line {
+  counter-increment: lines;
+}
+pre .line::before {
+  content: counter(lines); text-align: right;
+  display: inline-block; width: 2em;
+  padding-right: 0.5em; margin-right: 0.5em;
+  color: #BBB; border-right: solid 1px;
+/*
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -136,16 +147,5 @@ pre .tex .formula {
   -o-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  color: #777; 
-  position: relative; 
-  float: left; 
-  /*width: 58px;*/
-  border-right: 2px solid #666;
-  /*height: 1px; /* (for ie) */
-}
-
-.code-content { 
-  position: relative; 
-  padding-left: 60px; 
-  padding-bottom: 10px; 
+*/
 }

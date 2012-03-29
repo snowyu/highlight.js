@@ -169,7 +169,7 @@ var hljs = new function() {
       if (!is_default) {
         mode.beginRe = langRe(language, mode.begin ? mode.begin : '\\B|\\b');
         if (!mode.end && !mode.endsWithParent)
-          mode.end = '\\B|\\b'
+          mode.end = '\\B|\\b';
         if (mode.end)
           mode.endRe = langRe(language, mode.end);
       }
@@ -182,10 +182,11 @@ var hljs = new function() {
         for (var className in mode.keywords) {
           if (!mode.keywords.hasOwnProperty(className))
             continue;
+          var group;
           if (mode.keywords[className] instanceof Object) {
-            var group = mode.keywords[className];
+            group = mode.keywords[className];
           } else {
-            var group = mode.keywords;
+            group = mode.keywords;
             className = 'keyword';
           }
           for (var keyword in group) {
@@ -237,6 +238,7 @@ var hljs = new function() {
           return mode.contains[i];
         }
       }
+      return null;
     }
 
     function endOfMode(mode_index, lexem) {
@@ -410,14 +412,14 @@ var hljs = new function() {
         relevance: relevance,
         keyword_count: keyword_count,
         value: result
-      }
+      };
     } catch (e) {
       if (e == 'Illegal') {
         return {
           relevance: 0,
           keyword_count: 0,
           value: escape(value)
-        }
+        };
       } else {
         throw e;
       }
@@ -473,7 +475,7 @@ var hljs = new function() {
     if (tabReplace) {
       value = value.replace(/^((<[^>]+>|\t)+)/gm, function(match, p1, offset, s) {
         return p1.replace(/\t/g, tabReplace);
-      })
+      });
     }
     if (useBR) {
       value = value.replace(/\n/g, '<br>');
@@ -487,7 +489,7 @@ var hljs = new function() {
       if (classes[i] == 'no-linenumbers') {
         return -1;
       }
-      if (classes[i].match("startAt") != null) {
+      if (classes[i].match("startAt") !== null) {
         //nearest I can tell there are some wierd things happenning with numbers; hence the "/ 1" part
         return classes[i].match(/\d+/) / 1;
       }
@@ -520,39 +522,28 @@ var hljs = new function() {
     var alternatingRows = getAlternatingRowsOn(block);
     if (language == 'no-highlight')
         return;
+    var result;
     if (language) {
-      var result = highlight(language, text);
+      result = highlight(language, text);
     } else {
-      var result = highlightAuto(text);
+      result = highlightAuto(text);
       language = result.language;
     }
     var original = nodeStream(block);
+    var pre;
     if (original.length) {
-      var pre = document.createElement('pre');
+      pre = document.createElement('pre');
       pre.innerHTML = result.value;
       result.value = mergeStreams(original, nodeStream(pre), text);
     }
 
-    if(startAt != -1) {
-      var m = result.value.match(/([^\n\r]*)(?:\n\r|\r\n|\r|\n|$)/g);
-      var s = '<div class="code-line">';
-      var spaces = Math.ceil(Math.log(m.length) / Math.log(10));
-      var counter = startAt + 1 - 1;
-      if(spaces < 6)
-        spaces = 6;
-      for(var j=0; j < m.length; j++) {
-          l = '';
-          for (i = 0; i < (spaces - (Math.ceil(Math.log(counter + 1) / Math.log(10)))); ++i)
-            l = l + " ";
-          l = l + counter;
+    if(startAt != -1 || alternaterows) {
+          var resultTable = '<table class="lines" cellpadding="0" cellspacing="0"><tbody><tr>';
+          var lines = '<td><pre class="line-numbers">' + escape(text).replace(/^(.*)$/gm, '<span class="line"></span>') + '</pre><td>';
+          var codes = '<td width="100%"><div class="highlight"><pre>'+result.value+'</pre></div></td>';
+          result.value = resultTable + lines + codes + '</tr></tbody></table>';
 
-          s += l + '<br/>';
-          counter++;
-      }
-      s += '</div>';
-
-      result.value = s + '<div class="code-content">' + result.value + '</div>'; 
-      //result.value = insertLines(result.value, startAt, alternatingRows);
+          //result.value = insertLines(result.value, startAt, alternatingRows);
     }
 
     result.value = fixMarkup(result.value, tabReplace, useBR);
@@ -564,7 +555,7 @@ var hljs = new function() {
     if (/MSIE [678]/.test(navigator.userAgent) && block.tagName == 'CODE' && block.parentNode.tagName == 'PRE') {
       // This is for backwards compatibility only. IE needs this strange
       // hack becasue it cannot just cleanly replace <code> block contents.
-      var pre = block.parentNode;
+      pre = block.parentNode;
       var container = document.createElement('div');
       container.innerHTML = '<pre><code>' + result.value + '</code></pre>';
       block = container.firstChild.firstChild;
@@ -605,7 +596,7 @@ var hljs = new function() {
       newline = "";
       if(alternatingRows) {
         newline = "<span class=\"";
-        if(line%2 == 0)
+        if(line%2 === 0)
           newline = newline + "row";
         else
           newline = newline + "alternaterow";
@@ -617,7 +608,8 @@ var hljs = new function() {
           newline = newline + " ";
         newline = newline + counter + " </span>";
       }
-      for(var restartTokenCt = 0; restartTokenCt < tokenArray.length; ++restartTokenCt) {
+      var restartTokenCt;
+      for(restartTokenCt = 0; restartTokenCt < tokenArray.length; ++restartTokenCt) {
         newline = newline + tokenArray[restartTokenCt];
       }
       var tokens = lines[line].match(/(<span class="\w+">)|(<\/span>)|(.*?)/g);
@@ -629,7 +621,7 @@ var hljs = new function() {
         }
       }
       newline = newline + lines[line];
-      for(var restartTokenCt = 0; restartTokenCt < tokenArray.length; ++restartTokenCt) {
+      for(restartTokenCt = 0; restartTokenCt < tokenArray.length; ++restartTokenCt) {
         newline = newline + "</span>";
       }
 
@@ -683,13 +675,13 @@ var hljs = new function() {
   this.initHighlighting = initHighlighting;
   this.initHighlightingOnLoad = initHighlightingOnLoad;
 
-  var lineNumbers = false
-  this.noLineNumbers = function() { lineNumbers = false; }
-  this.addLineNumbers = function() { lineNumbers = true; }
+  var lineNumbers = false;
+  this.noLineNumbers = function() { lineNumbers = false; };
+  this.addLineNumbers = function() { lineNumbers = true; };
   
   var alternatingRows = false;
-  this.noAlternatingRows = function() { alternatingRows=false; }
-  this.addAlternatingRows = function() { alternatingRows=true; }
+  this.noAlternatingRows = function() { alternatingRows=false; };
+  this.addAlternatingRows = function() { alternatingRows=true; };
 
 
   // Common regexps
@@ -754,5 +746,5 @@ var hljs = new function() {
     }
     wrapper.prototype = parent;
     return new wrapper();
-  }
+  };
 }();
