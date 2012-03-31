@@ -131,10 +131,19 @@ pre .tex .formula {
 pre {
   counter-reset: lines;
 }
-pre .line {
+pre .line-no {
   counter-increment: lines;
+/*
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+*/
 }
-pre .line::before {
+pre .line-no::before {
   content: counter(lines); text-align: right;
   display: inline-block; width: 2em;
   padding-right: 0.5em; margin-right: 0.5em;
@@ -148,4 +157,23 @@ pre .line::before {
   -ms-user-select: none;
   user-select: none;
 */
+}
+/*
+td.line{
+  color: #BBB; border-right: solid 1px;
+}
+*/
+pre .highlight{
+  padding-left: 4px;
+/*
+  clear: both;
+  white-space: pre-line;
+*/
+}
+table .lines {
+  clear: both;
+  border: 0;
+  border-spacing: 0;
+  padding: 0;
+  margin:0;
 }

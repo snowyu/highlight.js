@@ -538,11 +538,21 @@ var hljs = new function() {
     }
 
     if(startAt != -1 || alternatingRows) {
-          var resultTable = '<table class="lines" cellpadding="0" cellspacing="0"><tbody><tr>';
-          var lines = '<td><pre class="line-numbers">' + escape(text).replace(/^(.*)$/gm, '<span class="line"></span>') + '</pre><td>';
-          var codes = '<td width="100%"><div class="highlight"><pre>'+result.value+'</pre></div></td>';
-          result.value = resultTable + lines + codes + '</tr></tbody></table>';
 
+          var resultTable = '<table class="lines" width="100%" cellpadding="0" cellspacing="0"><tbody><tr>';
+          var lines = '<td><pre class="line-numbers">' + escape(text).replace(/^(.*)$/gm, '<span class="line-no"></span>') + '</pre></td>';
+          var codes = '<td width="100%"><pre class="highlight">'+result.value+'</pre></td>';
+          result.value = resultTable + lines + codes + '</tr></tbody></table>';
+//*/
+/*
+      var resultPre = document.createElement('pre');
+      resultPre.innerHTML = result.value;
+      var linesPre = document.createElement('pre');
+      var lines = escape(text).replace(/^/gm, '<tr><td class="line" valign="top"><span class="line-no"></span></td><td>');
+      lines = lines.replace(/$/gm, '</td></tr>');
+      linesPre.innerHTML = '<table class="lines" width="100%" cellpadding="0" cellspacing="0"><tbody>'+lines + '</tbody></table>';
+      result.value = mergeStreams(nodeStream(linesPre), nodeStream(resultPre), text);
+//*/
           //result.value = insertLines(result.value, startAt, alternatingRows);
     }
 
@@ -578,7 +588,7 @@ var hljs = new function() {
       };
     }
   }
-
+/*
   function insertLines(highlightedText, startAt, alternatingRows) {
     var counter = startAt + 1 - 1; //make sure it is a number; otherwise Math.log doesn't work right
     var result = "";
